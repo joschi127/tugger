@@ -3,11 +3,18 @@
 # exit on error
 set -e
 
+# check if running on mac
+running_on_mac=0
+if [ "$(uname)" == "Darwin" ]
+then
+    running_on_mac=1
+fi
+
 # parse command line args
-showhelp=0
+show_help=0
 reprovision=0
-dockerupaction=""
-dockerupfile="./Dockerupfile"
+dockerup_action=""
+dockerup_file="./Dockerupfile"
 while [[ $# > 1 ]]
 do
     key="$1"
@@ -15,36 +22,36 @@ do
 
     case $key in
     -h|--help)
-        showhelp=1
+        show_help=1
         ;;
     -r|--reprovision)
         reprovision=1
         ;;
     -f|--file)
-        dockerupfile="$1"
+        dockerup_file="$1"
         shift
         ;;
     start)
-        dockerupaction="start"
+        dockerup_action="start"
         ;;
     stop)
-        dockerupaction="stop"
+        dockerup_action="stop"
         ;;
     restart)
-        dockerupaction="restart"
+        dockerup_action="restart"
         ;;
     status)
-        dockerupaction="status"
+        dockerup_action="status"
         ;;
     *)
         # unknown option
-        showhelp=1
+        show_help=1
         ;;
     esac
 done
 
 # show help
-if [ "$showhelp" = "1" ] || [ "$dockerupaction" = "" ]
+if [ "$show_help" == "1" ] || [ "$dockerup_action" == "" ]
 then
     echo "Wrapper for running Docker based development environments with Chef and Berkshelf"
     echo "based provisioning. Reads config from the 'Dockerupfile' in your project root folder."
@@ -55,14 +62,14 @@ then
     echo "  start                           Start the container"
     echo "  stop                            Stop the container"
     echo "  restart                         Restart the container"
-    echo "  status                          Show status information"
+    echo "  status                          Show status information for the container"
     echo
     echo "And where OPTIONS can be:"
     echo "  -h, --help                      Show this help"
-    echo "  -r, --reprovision               Force reprovisioning, also when caontainer was"
+    echo "  -r, --reprovision               Force to run provisioning, also when caontainer was"
     echo "                                  already provisioned before"
-    echo "  -f, --file DOCKERUPFILE         Pass path to 'Dockerupfile' to be used, default"
-    echo "                                  is './Dockerupfile'"
+    echo "  -f, --file DOCKERUP_FILE        Pass path to 'Dockerupfile' to be used, default is"
+    echo "                                  './Dockerupfile'"
     echo
     echo "Examples:"
     echo "  dockerup start                  Start the container as configured in './Dockerupfile'"
@@ -70,6 +77,8 @@ then
     echo "  dockerup stop                   Stop the container"
     echo "  dockerup restart                Restart the container"
     echo "  dockerup restart --reprovision  Restart and reprovision the container"    
-    echo "  dockerup status                 Show status information for container"
+    echo "  dockerup status                 Show status information for the container"
     exit 0
 fi
+
+
