@@ -10,22 +10,33 @@ then
     running_on_mac=1
 fi
 
+# check if running as root
+if [ "$(whoami)" == "root" ]
+then
+    echo "Do not run this as root (add yourself to the docker group if required)"
+    exit 1
+fi
+
 # parse command line args
 show_help=0
 reprovision=0
+rebuild_image=0
 dockerup_action=""
 dockerup_file="./Dockerupfile"
-while [[ $# > 1 ]]
+while [[ $# > 0 ]]
 do
     key="$1"
     shift
-
+    
     case $key in
     -h|--help)
         show_help=1
         ;;
     -r|--reprovision)
         reprovision=1
+        ;;
+    -b|--rebuild-image)
+        rebuild_image=1
         ;;
     -f|--file)
         dockerup_file="$1"
@@ -45,13 +56,15 @@ do
         ;;
     *)
         # unknown option
-        show_help=1
+        echo "Invalid argument: $key"
+        echo
+        show_help="1"
         ;;
     esac
 done
 
 # show help
-if [ "$show_help" == "1" ] || [ "$dockerup_action" == "" ]
+if [ "$show_help" == 1 ] || [ "$dockerup_action" == "" ]
 then
     echo "Simple tool for running Docker based development environments with Chef and Berkshelf"
     echo "based provisioning. Reads config from the 'Dockerupfile' in your project root folder."
@@ -68,6 +81,8 @@ then
     echo "  -h, --help                      Show this help"
     echo "  -r, --reprovision               Force to run provisioning, also when caontainer was"
     echo "                                  already provisioned before"
+    echo "  -b, --rebuild-image             Force to rebuild the docker image, also when image"
+    echo "                                  was already build from Dockerfile before"
     echo "  -f, --file DOCKERUP_FILE        Pass path to 'Dockerupfile' to be used, default is"
     echo "                                  './Dockerupfile'"
     echo
@@ -81,4 +96,64 @@ then
     exit 0
 fi
 
+# load dockerup file
+if ! test -e "$dockerup_file"
+then
+    echo "Dockerupfile '$dockerup_file' not found"
+    exit 1
+fi
+source "$dockerup_file"
+if [ "$project_name" == "" ]
+then
+    echo "Mandatory variable missing in Dockerupfile: project_name"
+    exit 1
+fi
+if [ "$dockerup_stack_git_url" == "" ]
+then
+    echo "Mandatory variable missing in Dockerupfile: dockerup_stack_git_url"
+    exit 1
+fi
+if [ "$dockerup_stack_version" == "" ]
+then
+    echo "Mandatory variable missing in Dockerupfile: dockerup_stack_version"
+    exit 1
+fi
+if [ "$dockerup_stack_shared_image_name" == "" ]
+then
+    echo "Mandatory variable missing in Dockerupfile: dockerup_stack_shared_image_name"
+    exit 1
+fi
 
+# clone dockerup stack
+if [ "$reprovision" == 1 ] && test -e "$HOME/.dockerup/projects/$project_name/dockerup-stack"
+then
+    echo "Removing old version of dockerup-stack..."
+    rm -rf "$HOME/.dockerup/projects/$project_name/dockerup-stack"
+fi
+if ! test -e "$HOME/.dockerup/projects/$project_name/dockerup-stack"
+then
+    echo "Cloning dockerup-stack from '$dockerup_stack_git_url' using branch or tag '$dockerup_stack_version'..."
+    git clone --branch "$dockerup_stack_version" "$dockerup_stack_git_url" "$HOME/.dockerup/projects/$project_name/dockerup-stack"
+fi
+
+# build the docker image
+existing_image_id="$(docker inspect --format '{{.Id}}' "$dockerup_stack_shared_image_name" 2> /dev/null || true)"
+if [ "$rebuild_image" == 1 ] && [ "$existing_image_id" != "" ]
+then
+    echo "Removing old version of dockerup-stack..."
+    if ! docker rmi "$dockerup_stack_shared_image_name"
+    then
+        echo "Failed to remove existing image, restoring tag name for image..."
+        docker tag "$existing_image_id" "$dockerup_stack_shared_image_name" || true
+        echo
+        echo "If removing the image fails because it is still used by another container, but you still want to"
+        echo "build a totally fresh image from scratch for some reason, please consider using another value for"
+        echo "dockerup_stack_shared_image_name in your Dockerupfile."
+        exit 1
+    fi
+    existing_image_id=""
+fi
+if [ "$existing_image_id" == "" ]
+then
+    docker build -t "$dockerup_stack_shared_image_name" "$HOME/.dockerup/projects/$project_name/dockerup-stack"
+fi
