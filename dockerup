@@ -53,7 +53,7 @@ done
 # show help
 if [ "$show_help" == "1" ] || [ "$dockerup_action" == "" ]
 then
-    echo "Wrapper for running Docker based development environments with Chef and Berkshelf"
+    echo "Simple tool for running Docker based development environments with Chef and Berkshelf"
     echo "based provisioning. Reads config from the 'Dockerupfile' in your project root folder."
     echo
     echo "Usage: dockerup ACTION [OPTIONS]"
