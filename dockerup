@@ -125,7 +125,7 @@ then
 fi
 
 # clone dockerup stack
-if [ "$reprovision" == 1 ] && test -e "$HOME/.dockerup/projects/$project_name/dockerup-stack"
+if ([ "$reprovision" == 1 ] || [ "$rebuild_image" == 1 ]) && test -e "$HOME/.dockerup/projects/$project_name/dockerup-stack"
 then
     echo "Removing old version of dockerup-stack..."
     rm -rf "$HOME/.dockerup/projects/$project_name/dockerup-stack"
