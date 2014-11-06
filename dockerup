@@ -155,5 +155,10 @@ then
 fi
 if [ "$existing_image_id" == "" ]
 then
-    docker build -t "$dockerup_stack_shared_image_name" "$HOME/.dockerup/projects/$project_name/dockerup-stack"
+    docker_build_params=""
+    if [ "$rebuild_image" == 1 ]
+    then
+        docker_build_params="$docker_build_params --no-cache"
+    fi
+    docker build $docker_build_params -t "$dockerup_stack_shared_image_name" "$HOME/.dockerup/projects/$project_name/dockerup-stack"
 fi
