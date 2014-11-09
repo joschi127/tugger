@@ -7,4 +7,7 @@
 /bin/bash /tugger/tugger-stack/init
 
 # keep container running forever (or until it is being stopped)
+echo
+echo "Container ready, you can press ^C now to get back to your local console."
+echo
 sleep infinity
