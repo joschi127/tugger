@@ -24,6 +24,7 @@ fi
 show_help=0
 reprovision=0
 recreate_berksfile_lock=0
+recreate_container=0
 rebuild_image=0
 tugger_action=""
 tugger_file="./Tuggerfile"
@@ -41,6 +42,9 @@ do
         ;;
     -l|--recreate-berksfile-lock)
         recreate_berksfile_lock=1
+        ;;
+    -c|--recreate-container)
+        recreate_container=1
         ;;
     -b|--rebuild-image)
         rebuild_image=1
@@ -86,12 +90,14 @@ then
     echo
     echo "And where OPTIONS can be:"
     echo "  -h, --help                      Show this help"
-    echo "  -r, --reprovision               Force to run provisioning, also when caontainer was"
+    echo "  -r, --reprovision               Force to run provisioning, also when container was"
     echo "                                  already provisioned before"
     echo "  -l, --recreate-berksfile-lock   Force to recreate Berksfile.lock and update the used"
     echo "                                  versions of the packages"
-    echo "  -b, --rebuild-image             Force to rebuild the docker image, also when image"
-    echo "                                  was already build from Dockerfile before"
+    echo "  -c, --recreate-container        Force to recreate the docker container from the"
+    echo "                                  base image used by the tugger-stack"
+    echo "  -b, --rebuild-image             Force to rebuild the docker base image, also when"
+    echo "                                  image was already build from Dockerfile before"
     echo "  -f, --file DOCKERUP_FILE        Pass path to 'Tuggerfile' to be used, default is"
     echo "                                  './Tuggerfile'"
     echo
@@ -196,6 +202,12 @@ then
     docker stop "$project_name"
 elif [ "$tugger_action" == "start" ] || [ "$tugger_action" == "restart" ]
 then
+    if [ "$existing_container_id" != "" ] && [ "$recreate_container" == 1 ]
+    then
+        echo "Recreate option given, deleting existing container '$project_name'..."
+        docker rm "$project_name"
+        existing_container_id=""
+    fi
     if [ "$existing_container_id" == "" ]
     then
         echo "Creating new container '$project_name'..."
