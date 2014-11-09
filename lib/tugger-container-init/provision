@@ -1,0 +1,34 @@
+#!/bin/bash
+
+# set variables
+reprovision=0
+recreate_berksfile_lock=0
+if test -e /tugger/reprovision.touch >/dev/null
+then
+    reprovision=1
+fi
+if test -e /tugger/recreate_berksfile_lock.touch >/dev/null
+then
+    recreate_berksfile_lock=1
+fi
+
+# run chef-solo / berkshelf provisioning
+if ! test -e /tugger/chef_completed.touch >/dev/null || [ "$reprovision" = "1" ]
+then
+    echo
+    echo "Running chef-solo / berkshelf provisioning ..."
+    echo
+    rm -rf /chef
+    cp -r -Pav /tugger/tugger-stack /chef
+    cd /chef
+    if [ "$recreate_berksfile_lock" = "1" ]
+    then
+        rm -f Berksfile.lock
+    fi
+    /opt/chef/embedded/bin/berks vendor /chef/cookbooks
+    chef-solo -c "/chef/chef.rb" -j "/chef/chef.json"
+    echo
+    echo "Provisioning completed."
+    echo
+    touch /tugger/chef_completed.touch
+fi
