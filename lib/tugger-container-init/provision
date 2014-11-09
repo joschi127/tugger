@@ -19,7 +19,7 @@ then
     echo "Running chef-solo / berkshelf provisioning ..."
     echo
     rm -rf /chef
-    cp -r -Pav /tugger/tugger-stack /chef
+    cp -r -Pa /tugger/tugger-stack /chef
     cd /chef
     if [ "$recreate_berksfile_lock" = "1" ]
     then
