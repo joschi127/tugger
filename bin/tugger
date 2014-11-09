@@ -46,6 +46,7 @@ do
         ;;
     -c|--recreate-container)
         recreate_container=1
+        reprovision=1
         ;;
     -b|--rebuild-image)
         rebuild_image=1
@@ -201,6 +202,12 @@ then
     touch $HOME/.tugger/projects/$project_name/recreate_berksfile_lock.touch
 else
     rm -f $HOME/.tugger/projects/$project_name/recreate_berksfile_lock.touch
+fi
+
+# force to run fresh provisioning when recreating a new container7
+if [ "$recreate_container" == 1 ]
+then
+    rm -f $HOME/.tugger/projects/$project_name/chef_completed.touch
 fi
 
 # get status information
