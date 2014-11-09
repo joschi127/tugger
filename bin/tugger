@@ -225,7 +225,7 @@ then
         echo "Failed to stop container, container is not running"
         exit 1
     fi
-    docker stop "$project_name"
+    docker stop "$project_name" > /dev/null || true
 elif [ "$tugger_action" == "start" ] || [ "$tugger_action" == "restart" ]
 then
     if [ "$existing_container_id" != "" ] && [ "$recreate_container" == 1 ]
