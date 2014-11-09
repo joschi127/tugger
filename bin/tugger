@@ -237,7 +237,7 @@ then
     if [ "$existing_container_id" == "" ]
     then
         echo "Creating new container '$project_name'..."
-        docker run --name "$project_name" --hostname "$project_name" -v $HOME/.ssh/:/home/webserver/.ssh/ -v $HOME/.gitconfig:/home/webserver/.gitconfig -v $HOME/.tugger/projects/$project_name:/tugger -v $tugger_install_dir/lib:/tugger/lib -v $(dirname $(pwd)):/var/www/webproject -t "$tugger_stack_shared_image_name" /bin/bash /tugger/lib/tugger-container-init/init-wrapper
+        docker run --name "$project_name" --hostname "$project_name" -v $HOME/.ssh/:/home/webserver/.ssh/ -v $HOME/.gitconfig:/home/webserver/.gitconfig -v $HOME/.tugger/projects/$project_name:/tugger -v $tugger_install_dir/lib:/tugger/lib -v $(dirname $tugger_file):/var/www/webproject -t "$tugger_stack_shared_image_name" /bin/bash /tugger/lib/tugger-container-init/init-wrapper
     else
         echo "Starting already existing container '$project_name'..."
         docker start -i "$project_name"
