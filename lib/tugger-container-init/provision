@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# source tugger file
+source /tugger/Tuggerfile
+
 # set variables
 reprovision=0
 recreate_berksfile_lock=0
@@ -22,6 +25,12 @@ then
     if [ "$recreate_berksfile_lock" = "1" ]
     then
         rm -f Berksfile.lock
+    fi
+    if [ "$chef_json_override" != "" ] && (echo "$chef_json_override" | grep --silent "{")
+    then
+        mv chef.json chef_orig.json
+        echo "$chef_json_override" > chef_override.json
+        /usr/bin/python2 /tugger/lib/tugger-container-init/json-merge.py chef_orig.json chef_override.json > chef.json
     fi
     /opt/chef/embedded/bin/berks vendor /chef/cookbooks
     chef-solo -c "/chef/chef.rb" -j "/chef/chef.json"

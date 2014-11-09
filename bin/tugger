@@ -62,6 +62,9 @@ do
     restart)
         tugger_action="restart"
         ;;
+    remove)
+        tugger_action="remove"
+        ;;
     status)
         tugger_action="status"
         ;;
@@ -86,6 +89,7 @@ then
     echo "  start                           Start the container"
     echo "  stop                            Stop the container"
     echo "  restart                         Restart the container"
+    echo "  remove                          Permanently remove the container"
     echo "  status                          Show status information for the container"
     echo
     echo "And where OPTIONS can be:"
@@ -107,6 +111,7 @@ then
     echo "  tugger stop                   Stop the container"
     echo "  tugger restart                Restart the container"
     echo "  tugger restart --reprovision  Restart and reprovision the container"
+    echo "  tugger remove                 Permanently remove the container"
     echo "  tugger status                 Show status information for the container"
     exit 0
 fi
@@ -151,6 +156,9 @@ then
     git clone --branch "$tugger_stack_version" "$tugger_stack_git_url" "$HOME/.tugger/projects/$project_name/tugger-stack"
 fi
 
+# cp tugger file
+cp "$tugger_file" "$HOME/.tugger/projects/$project_name/Tuggerfile"
+
 # build the docker image
 existing_image_id="$(docker inspect --format '{{.Id}}' "$tugger_stack_shared_image_name" 2> /dev/null || true)"
 if [ "$rebuild_image" == 1 ] && [ "$existing_image_id" != "" ]
@@ -194,11 +202,29 @@ else
     rm -f $HOME/.tugger/projects/$project_name/recreate_berksfile_lock.touch
 fi
 
-# create docker container
+# get status information
 existing_container_id="$(docker inspect --format '{{.Id}}' "$project_name" 2> /dev/null || true)"
-if [ "$tugger_action" == "stop" ] || [ "$tugger_action" == "restart" ]
+existing_container_running="$(docker inspect --format '{{.State.Running}}' "$project_name" 2> /dev/null || true)"
+existing_container_ip_address="$(docker inspect --format '{{.NetworkSettings.IPAddress}}' "$project_name" 2> /dev/null || true)"
+existing_container_ip_address_display="$existing_container_ip_address"
+if [ "$existing_container_ip_address_display" == "" ]
+then
+    existing_container_ip_address_display="-"
+fi
+
+# handle the requested tugger action
+if [ "$tugger_action" == "remove" ]
+then
+    echo "Permanently removing container '$project_name'..."
+    docker rm "$project_name"
+elif [ "$tugger_action" == "stop" ] || [ "$tugger_action" == "restart" ]
 then
     echo "Stopping container '$project_name'..."
+    if [ "$existing_container_running" != "true" ]
+    then
+        echo "Failed to stop container, container is not running"
+        exit 1
+    fi
     docker stop "$project_name"
 elif [ "$tugger_action" == "start" ] || [ "$tugger_action" == "restart" ]
 then
@@ -218,7 +244,16 @@ then
     fi
 elif [ "$tugger_action" == "status" ]
 then
-    echo "tugger status not implemented yet"
+    echo "Status information for container:     $project_name"
+    if [ "$existing_container_id" == "" ]
+    then
+        echo "Container not created yet, no container found with that name"
+    else
+        echo "Container ID:                         $existing_container_id"
+        echo "Container currently running:          $existing_container_running"
+        echo "Current container IP address:         $existing_container_ip_address_display"
+    fi
 else
-    echo "invalid action given: '$tugger_action'"
+    echo "Internal error, invalid value for action: '$tugger_action'"
+    exit 1
 fi
