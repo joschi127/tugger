@@ -1,0 +1,168 @@
+#!/bin/bash
+
+# exit on error
+set -e
+
+# check if running on mac
+running_on_mac=0
+if [ "$(uname)" == "Darwin" ]
+then
+    running_on_mac=1
+fi
+
+# check if running as root
+if [ "$(whoami)" == "root" ]
+then
+    echo "Do not run this as root (add yourself to the docker group if required)"
+    exit 1
+fi
+
+# parse command line args
+show_help=0
+reprovision=0
+rebuild_image=0
+tugger_action=""
+tugger_file="./Tuggerfile"
+while [[ $# > 0 ]]
+do
+    key="$1"
+    shift
+    
+    case $key in
+    -h|--help)
+        show_help=1
+        ;;
+    -r|--reprovision)
+        reprovision=1
+        ;;
+    -b|--rebuild-image)
+        rebuild_image=1
+        ;;
+    -f|--file)
+        tugger_file="$1"
+        shift
+        ;;
+    start)
+        tugger_action="start"
+        ;;
+    stop)
+        tugger_action="stop"
+        ;;
+    restart)
+        tugger_action="restart"
+        ;;
+    status)
+        tugger_action="status"
+        ;;
+    *)
+        # unknown option
+        echo "Invalid argument: $key"
+        echo
+        show_help="1"
+        ;;
+    esac
+done
+
+# show help
+if [ "$show_help" == 1 ] || [ "$tugger_action" == "" ]
+then
+    echo "Simple tool for running Docker based development environments with Chef and Berkshelf"
+    echo "based provisioning. Reads config from the 'Tuggerfile' in your project root folder."
+    echo
+    echo "Usage: tugger ACTION [OPTIONS]"
+    echo
+    echo "Where ACTION has to be one of:"
+    echo "  start                           Start the container"
+    echo "  stop                            Stop the container"
+    echo "  restart                         Restart the container"
+    echo "  status                          Show status information for the container"
+    echo
+    echo "And where OPTIONS can be:"
+    echo "  -h, --help                      Show this help"
+    echo "  -r, --reprovision               Force to run provisioning, also when caontainer was"
+    echo "                                  already provisioned before"
+    echo "  -b, --rebuild-image             Force to rebuild the docker image, also when image"
+    echo "                                  was already build from Dockerfile before"
+    echo "  -f, --file DOCKERUP_FILE        Pass path to 'Tuggerfile' to be used, default is"
+    echo "                                  './Tuggerfile'"
+    echo
+    echo "Examples:"
+    echo "  tugger start                  Start the container as configured in './Tuggerfile'"
+    echo "  tugger start --reprovision    Start and reprovision the container"
+    echo "  tugger stop                   Stop the container"
+    echo "  tugger restart                Restart the container"
+    echo "  tugger restart --reprovision  Restart and reprovision the container"
+    echo "  tugger status                 Show status information for the container"
+    exit 0
+fi
+
+# load tugger file
+if ! test -e "$tugger_file"
+then
+    echo "Tuggerfile '$tugger_file' not found"
+    exit 1
+fi
+source "$tugger_file"
+if [ "$project_name" == "" ]
+then
+    echo "Mandatory variable missing in Tuggerfile: project_name"
+    exit 1
+fi
+if [ "$tugger_stack_git_url" == "" ]
+then
+    echo "Mandatory variable missing in Tuggerfile: tugger_stack_git_url"
+    exit 1
+fi
+if [ "$tugger_stack_version" == "" ]
+then
+    echo "Mandatory variable missing in Tuggerfile: tugger_stack_version"
+    exit 1
+fi
+if [ "$tugger_stack_shared_image_name" == "" ]
+then
+    echo "Mandatory variable missing in Tuggerfile: tugger_stack_shared_image_name"
+    exit 1
+fi
+
+# clone tugger stack
+if ([ "$reprovision" == 1 ] || [ "$rebuild_image" == 1 ]) && test -e "$HOME/.tugger/projects/$project_name/tugger-stack"
+then
+    echo "Removing old version of tugger-stack..."
+    rm -rf "$HOME/.tugger/projects/$project_name/tugger-stack"
+fi
+if ! test -e "$HOME/.tugger/projects/$project_name/tugger-stack"
+then
+    echo "Cloning tugger-stack from '$tugger_stack_git_url' using branch or tag '$tugger_stack_version'..."
+    git clone --branch "$tugger_stack_version" "$tugger_stack_git_url" "$HOME/.tugger/projects/$project_name/tugger-stack"
+fi
+
+# build the docker image
+existing_image_id="$(docker inspect --format '{{.Id}}' "$tugger_stack_shared_image_name" 2> /dev/null || true)"
+if [ "$rebuild_image" == 1 ] && [ "$existing_image_id" != "" ]
+then
+    echo "Removing old version of tugger-stack..."
+    if ! docker rmi "$tugger_stack_shared_image_name"
+    then
+        echo "Failed to remove existing image, restoring tag name for image..."
+        docker tag "$existing_image_id" "$tugger_stack_shared_image_name" || true
+        echo
+        echo "If removing the image fails because it is still used by another container, but you still want to"
+        echo "build a totally fresh image from scratch for some reason, please consider using another value for"
+        echo "tugger_stack_shared_image_name in your Tuggerfile."
+        exit 1
+    fi
+    existing_image_id=""
+fi
+if [ "$existing_image_id" == "" ]
+then
+    docker_build_params=""
+    if [ "$rebuild_image" == 1 ]
+    then
+        docker_build_params="$docker_build_params --no-cache"
+    fi
+    docker build $docker_build_params -t "$tugger_stack_shared_image_name" "$HOME/.tugger/projects/$project_name/tugger-stack"
+fi
+
+# todo: run container with init-wrapper-script
+# the init-wrapper-script should a) run provisioning if first run or --reprovision given and b) run init.sh from tugger-stack
+
