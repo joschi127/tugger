@@ -217,7 +217,7 @@ fi
 if [ "$tugger_action" == "remove" ]
 then
     echo "Permanently removing container '$project_name'..."
-    docker rm "$project_name"
+    docker rm "$project_name" > /dev/null
 fi
 if [ "$tugger_action" == "stop" ] || [ "$tugger_action" == "restart" ]
 then
