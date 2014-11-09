@@ -217,7 +217,8 @@ if [ "$tugger_action" == "remove" ]
 then
     echo "Permanently removing container '$project_name'..."
     docker rm "$project_name"
-elif [ "$tugger_action" == "stop" ] || [ "$tugger_action" == "restart" ]
+fi
+if [ "$tugger_action" == "stop" ] || [ "$tugger_action" == "restart" ]
 then
     echo "Stopping container '$project_name'..."
     if [ "$existing_container_running" != "true" ]
@@ -225,8 +226,9 @@ then
         echo "Failed to stop container, container is not running"
         exit 1
     fi
-    docker stop "$project_name" > /dev/null || true
-elif [ "$tugger_action" == "start" ] || [ "$tugger_action" == "restart" ]
+    docker stop "$project_name" > /dev/null
+fi
+if [ "$tugger_action" == "start" ] || [ "$tugger_action" == "restart" ]
 then
     if [ "$existing_container_id" != "" ] && [ "$recreate_container" == 1 ]
     then
@@ -242,7 +244,8 @@ then
         echo "Starting already existing container '$project_name'..."
         docker start -i "$project_name"
     fi
-elif [ "$tugger_action" == "status" ]
+fi
+if [ "$tugger_action" == "status" ]
 then
     echo "Status information for container:     $project_name"
     if [ "$existing_container_id" == "" ]
@@ -253,7 +256,4 @@ then
         echo "Container currently running:          $existing_container_running"
         echo "Current container IP address:         $existing_container_ip_address_display"
     fi
-else
-    echo "Internal error, invalid value for action: '$tugger_action'"
-    exit 1
 fi
