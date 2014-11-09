@@ -15,9 +15,7 @@ fi
 # run chef-solo / berkshelf provisioning
 if ! test -e /tugger/chef_completed.touch >/dev/null || [ "$reprovision" = "1" ]
 then
-    echo
-    echo "Running chef-solo / berkshelf provisioning ..."
-    echo
+    echo "Running chef-solo / berkshelf provisioning..."
     rm -rf /chef
     cp -r -Pa /tugger/tugger-stack /chef
     cd /chef
@@ -27,8 +25,6 @@ then
     fi
     /opt/chef/embedded/bin/berks vendor /chef/cookbooks
     chef-solo -c "/chef/chef.rb" -j "/chef/chef.json"
-    echo
-    echo "Provisioning completed."
-    echo
+    echo "Chef-solo / berkshelf provisioning completed."
     touch /tugger/chef_completed.touch
 fi
