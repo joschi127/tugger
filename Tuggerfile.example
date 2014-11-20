@@ -18,6 +18,9 @@ tugger_stack_version="master"
 # (an image can be shared for multiple projects when using the same name)
 tugger_stack_shared_image_name="tugger-stack-lamp"
 
+# the ports you want to expose
+tugger_ports="22 80 443"
+
 # chef json override
 # (the given json object will be merged with the chef.json of the used tugger-stack, so you can add or override
 # options here)

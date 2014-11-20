@@ -191,27 +191,27 @@ fi
 # reprovision
 if [ "$reprovision" == 1 ]
 then
-    touch $HOME/.tugger/projects/$project_name/reprovision.touch
+    touch "$HOME/.tugger/projects/$project_name/reprovision.touch"
 else
-    rm -f $HOME/.tugger/projects/$project_name/reprovision.touch
+    rm -f "$HOME/.tugger/projects/$project_name/reprovision.touch"
 fi
 
 # force recreate of berksfile lock
 if [ "$recreate_berksfile_lock" == 1 ]
 then
-    touch $HOME/.tugger/projects/$project_name/recreate-berksfile-lock.touch
+    touch "$HOME/.tugger/projects/$project_name/recreate-berksfile-lock.touch"
 else
-    rm -f $HOME/.tugger/projects/$project_name/recreate-berksfile-lock.touch
+    rm -f "$HOME/.tugger/projects/$project_name/recreate-berksfile-lock.touch"
 fi
 
 # force to run fresh provisioning when recreating a new container7
 if [ "$recreate_container" == 1 ]
 then
-    rm -f $HOME/.tugger/projects/$project_name/chef-completed.touch
+    rm -f "$HOME/.tugger/projects/$project_name/chef-completed.touch"
 fi
 
 # get status information
-get_container_status() {
+set_container_status_vars() {
     export existing_container_id="$(docker inspect --format '{{.Id}}' "$project_name" 2> /dev/null || true)"
     export existing_container_running="$(docker inspect --format '{{.State.Running}}' "$project_name" 2> /dev/null || true)"
     export existing_container_ip_address="$(docker inspect --format '{{.NetworkSettings.IPAddress}}' "$project_name" 2> /dev/null || true)"
@@ -220,8 +220,74 @@ get_container_status() {
     then
         export existing_container_ip_address_display="-"
     fi
+    export docker_host_ip="127.0.0.1"
+    if [ "$running_on_mac" == 1 ]
+    then
+        export docker_host_ip="$(boot2docker ip 2> /dev/null || true)"
+    fi
 }
-get_container_status
+set_container_status_vars
+
+# get mapped ports
+is_port_used() {
+    p="$1"
+    # check against tugger ports
+    tugger_ports_output="$(cat "$HOME/.tugger/ports" 2> /dev/null | awk "\$3 == \"$p\"")"
+    # netstat check
+    netstat_output=""
+    if [ "$running_on_mac" != 1 ]
+    then
+        netstat_output="$(netstat -lnt | awk "\$6 == \"LISTEN\" && \$4 ~ \":$p\"")"
+    else
+        netstat_output="$(netstat -anp tcp | awk "\$6 == \"LISTEN\" && \$4 ~ \"\\\\.$p\"")"
+    fi
+    if [ "$netstat_output" != "" ] || [ "$tugger_ports_output" != "" ]
+    then
+        # return 0 == success
+        return 0
+    else
+        # return 1 == failure
+        return 1
+    fi
+}
+find_free_port() {
+    p="$1"
+    while is_port_used "$p"
+    do
+        p=$[$p + 1]
+    done
+    echo "$p"
+}
+gen_host_port() {
+    p="$1"
+    echo "72$[$p % 100]"
+}
+get_mapped_ports() {
+    for container_port in $tugger_ports
+    do
+        tugger_ports_output="$(cat "$HOME/.tugger/ports" 2> /dev/null | awk "\$1 == \"$project_name\" && \$2 == \"$container_port\"")"
+        if [ "$tugger_ports_output" == "" ]
+        then
+            host_port="$(find_free_port $(gen_host_port $container_port))"
+            echo "$project_name $container_port $host_port" >> "$HOME/.tugger/ports"
+        fi
+    done
+    tugger_ports_output_full="$(cat "$HOME/.tugger/ports" 2> /dev/null | awk "\$1 == \"$project_name\"")"
+    echo "$tugger_ports_output_full"
+}
+get_mapped_ports_params() {
+    map="$1"
+    params="$(echo "$map" | awk "{ printf \"-p \"\$3\":\"\$2\" \" }")"
+    echo "$params"
+}
+get_mapped_ports_summary() {
+    map="$1"
+    params="$(echo "$map" | awk "{ print \"                                      $docker_host_ip:\"\$3\" --> \"\$2\" \" }")"
+    echo "$params"
+}
+mapped_ports="$(get_mapped_ports)"
+mapped_ports_params="$(get_mapped_ports_params "$mapped_ports")"
+mapped_ports_summary="$(get_mapped_ports_summary "$mapped_ports")"
 
 # handle the requested tugger action
 if [ "$tugger_action" == "remove" ]
@@ -242,7 +308,7 @@ fi
 if [ "$tugger_action" == "start" ] || [ "$tugger_action" == "restart" ]
 then
     # start or create container
-    rm -f $HOME/.tugger/projects/$project_name/init-completed.touch
+    rm -f "$HOME/.tugger/projects/$project_name/init-completed.touch"
     if [ "$existing_container_id" != "" ] && [ "$recreate_container" == 1 ]
     then
         echo "Recreate option given, deleting existing container '$project_name'..."
@@ -252,7 +318,7 @@ then
     if [ "$existing_container_id" == "" ]
     then
         echo "Creating new container '$project_name'..."
-        docker run -d --name "$project_name" --hostname "$project_name" -v $HOME/.ssh/:/home/webserver/.ssh/ -v $HOME/.gitconfig:/home/webserver/.gitconfig -v $HOME/.tugger/projects/$project_name:/tugger -v $tugger_install_dir/lib:/tugger/lib -v $project_dir:/var/www/webproject -t "$tugger_stack_shared_image_name" /bin/bash /tugger/lib/tugger-container-init/init-wrapper > /dev/null
+        docker run -d --name "$project_name" --hostname "$project_name" $mapped_ports_params -v "$HOME/.ssh/:/home/webserver/.ssh/" -v "$HOME/.gitconfig:/home/webserver/.gitconfig" -v "$HOME/.tugger/projects/$project_name:/tugger" -v "$tugger_install_dir/lib:/tugger/lib" -v "$project_dir:/var/www/webproject" -t "$tugger_stack_shared_image_name" /bin/bash /tugger/lib/tugger-container-init/init-wrapper > /dev/null
     else
         echo "Starting already existing container '$project_name'..."
         docker start "$project_name" > /dev/null
@@ -262,7 +328,7 @@ then
     docker logs --tail="all" -f "$project_name" &
     docker_logs_pid=$!
     # wait until init completed
-    while ! test -e $HOME/.tugger/projects/$project_name/init-completed.touch
+    while ! test -e "$HOME/.tugger/projects/$project_name/init-completed.touch"
     do
         sleep 2
         if [ "$(docker inspect --format '{{.State.Running}}' "$project_name" 2> /dev/null || true)" != "true" ]
@@ -276,7 +342,8 @@ then
 fi
 if [ "$tugger_action" == "status" ] || [ "$tugger_action" == "start" ] || [ "$tugger_action" == "restart" ]
 then
-    get_container_status
+    set_container_status_vars
+    echo
     echo "Status information for container:     $project_name"
     if [ "$existing_container_id" == "" ]
     then
@@ -285,5 +352,9 @@ then
         echo "Container ID:                         $existing_container_id"
         echo "Container currently running:          $existing_container_running"
         echo "Current container IP address:         $existing_container_ip_address_display"
+        echo
+        echo "Mapped ports:"
+        echo "$mapped_ports_summary";
     fi
+    echo
 fi
