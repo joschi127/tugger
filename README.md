@@ -30,7 +30,7 @@ Make it available as a global command: (optional)
 
 Add a `Tuggerfile` to your project:
 
-    cp /some/target/path/tugger/Tuggerfile.example /path/to/your/project/
+    cp /some/target/path/tugger/Tuggerfile.example /path/to/your/project/Tuggerfile
     # edit the file with your favorite text editor
     # feel free to add the file to your project's version control system
 
