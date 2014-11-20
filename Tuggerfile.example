@@ -1,0 +1,33 @@
+##
+## Tuggerfile to be used by the tool "tugger" to run a local development environment with Chef and Berkshelf based
+## provisioning in a Docker container.
+##
+
+# the unique name of your project
+# (use '-' to separate words, no spaces, underscores and dots please)
+project_name="project-name"
+
+# the git repository url of the tugger-stack you want to use
+# (you can also use a repository in your local file system, but only committed changes will take effect)
+tugger_stack_git_url="git@github.com:joschi127/tugger-stack-lamp.git"
+
+# the git branch or tag name of the tugger-stack you want to use
+tugger_stack_version="master"
+
+# the name of your local docker image
+# (an image can be shared for multiple projects when using the same name)
+tugger_stack_shared_image_name="tugger-stack-lamp"
+
+# chef json override
+# (the given json object will be merged with the chef.json of the used tugger-stack, so you can add or override
+# options here)
+chef_json_override=$(cat <<EOF
+    {
+        "app": {
+            "name": "project-name",
+            "server_name": "project-name.local",
+            "server_aliases": [ "www.project-name.local" ]
+        }
+    }
+EOF
+)
