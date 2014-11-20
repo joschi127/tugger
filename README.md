@@ -1,11 +1,10 @@
 tugger
 ======
 
-Simple tool for running Docker based development environments with Chef and Berkshelf based provisioning. Reads config
-from the `Tuggerfile` in your project's root folder.
+Simple tool for running Docker based development environments with Chef and Berkshelf based provisioning.
 
-Will use a tugger-stack from another git repository which contains the provisioning config for your development
-container.
+Reads config from the `Tuggerfile` in your project's root folder and uses use a `tugger-stack` from another git
+repository which contains the provisioning config for your development container.
 
 You can find a Debian based LAMP tugger-stack here: https://github.com/joschi127/tugger-stack-lamp
 
