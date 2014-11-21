@@ -1,5 +1,7 @@
 #!/bin/bash
-
+realpath() {
+    [[ $1 = /* ]] && echo "$1" || echo "$PWD/${1#./}"
+}
 # exit on error
 set -e
 
@@ -45,7 +47,8 @@ recreate_container=0
 rebuild_image=0
 tugger_action=""
 tugger_file="./Tuggerfile"
-project_dir="$(dirname "$tugger_file")"
+project_dir="$(realpath $(dirname "$tugger_file"))"
+
 while [[ $# > 0 ]]
 do
     key="$1"
