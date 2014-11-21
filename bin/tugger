@@ -3,9 +3,6 @@
 # exit on error
 set -e
 
-# get real path of tugger installation, also if started from symlink
-tugger_install_dir="$(dirname "$(dirname "$(realpath "$0")")")"
-
 # check if running on mac
 running_on_mac=0
 if [ "$(uname)" == "Darwin" ]
@@ -20,6 +17,19 @@ then
     exit 1
 fi
 
+# get real path of tugger installation, also if started from symlink
+resolve_symlink() {
+    path="$1"
+    if [ "$running_on_mac" == 1 ]
+    then
+        path_real="$(readlink "$path" || echo "$path")"
+    else
+        path_real="$(realpath "$path")"
+    fi
+    echo "$path_real"
+}
+tugger_install_dir="$(dirname "$(dirname "$(resolve_symlink "$0")")")"
+
 # parse command line args
 show_help=0
 reprovision=0
@@ -28,7 +38,7 @@ recreate_container=0
 rebuild_image=0
 tugger_action=""
 tugger_file="./Tuggerfile"
-project_dir="$(realpath "$(dirname "$tugger_file")")"
+project_dir="$(dirname "$tugger_file")"
 while [[ $# > 0 ]]
 do
     key="$1"
