@@ -10,6 +10,13 @@ then
     running_on_mac=1
 fi
 
+# on mac, check if boot2docker is running
+if [ "$(boot2docker status)" != "running" ]
+then
+    echo "Please start boot2docker first"
+    exit 1
+fi
+
 # check if running as root
 if [ "$(whoami)" == "root" ]
 then
