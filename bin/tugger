@@ -1,7 +1,5 @@
 #!/bin/bash
-realpath() {
-    [[ $1 = /* ]] && echo "$1" || echo "$PWD/${1#./}"
-}
+
 # exit on error
 set -e
 
@@ -47,7 +45,6 @@ recreate_container=0
 rebuild_image=0
 tugger_action=""
 tugger_file="./Tuggerfile"
-project_dir="$(realpath $(dirname "$tugger_file"))"
 
 while [[ $# > 0 ]]
 do
@@ -98,6 +95,19 @@ do
         ;;
     esac
 done
+
+# get absolute path to project dir
+folder_absolute_path() {
+    path="$1"
+    if [ "$running_on_mac" == 1 ]
+    then
+        path_real="$(cd "$path" && pwd)"
+    else
+        path_real="$(realpath "$path")"
+    fi
+    echo "$path_real"
+}
+project_dir="$(folder_absolute_path $(dirname "$tugger_file"))"
 
 # show help
 if [ "$show_help" == 1 ] || [ "$tugger_action" == "" ]
