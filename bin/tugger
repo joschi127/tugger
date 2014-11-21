@@ -11,7 +11,7 @@ then
 fi
 
 # on mac, check if boot2docker is running
-if [ "$(boot2docker status)" != "running" ]
+if [ "$running_on_mac" == 1 ] && [ "$(boot2docker status)" != "running" ]
 then
     echo "Please start boot2docker first"
     exit 1
