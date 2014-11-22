@@ -1,7 +1,7 @@
 tugger
 ======
 
-Simple tool for running Docker based development environments with Chef and Berkshelf based provisioning.
+Simple tool for running `Docker` based development environments with `Chef` and `Berkshelf` based provisioning.
 
 Reads config from the `Tuggerfile` in your project's root folder and uses use a `tugger-stack` from another git
 repository which contains the provisioning config for your development container.
@@ -15,9 +15,9 @@ Credits
 -------
 
 * Inspired by `Vagrant` and the `vagrant up` command
-* Chef and Berkshelf based provisioning, originally based on the `Vagrant-LAMP-Stack` by MiniCodeMonkey
-* And of course also thanks a lot to all the guys from Docker, Chef, Berkshelf and all the other great tools we're
-using for this
+* `Chef` and `Berkshelf` based provisioning, originally based on the `Vagrant-LAMP-Stack` by MiniCodeMonkey
+* And of course also thanks a lot to all the guys from `Docker`, `Chef`, `Berkshelf` and all the other great tools
+we're using for this
 
 Features
 --------
@@ -43,8 +43,8 @@ in your Tuggerfile
 Prerequisites
 -------------
 
-Docker has to be installed and your own user account has to be allowed to use it. (For most systems, add yourself to
-the `docker` group and re-login.)
+`Docker` has to be installed and your own user account has to be allowed to use it. (For most systems, add yourself
+to the `docker` group and re-login.)
 
 On Macs you have to use `boot2docker` in addition.
 
