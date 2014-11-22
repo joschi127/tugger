@@ -19,6 +19,7 @@ ready to go
 * `Chef` and `Berkshelf` based provisioning, originally based on the `Vagrant-LAMP-Stack` by MiniCodeMonkey
 * And of course also thanks a lot to all the guys from `Docker`, `Chef`, `Berkshelf` and all the other great tools
 we're using for this
+* Thanks to Mike and Chris from the `Coder Radio` podcast where I heard about `Docker` for the very first time
 
 Features
 --------
