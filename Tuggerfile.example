@@ -23,7 +23,7 @@ tugger_ports="22 80 443"
 
 # write the following host names to /etc/hosts
 # (leave empty if you do not want to let tugger update your /etc/hosts file)
-update_etc_hosts="$project_name $project_name.local"
+tugger_etc_hosts="$project_name $project_name.local"
 
 # chef json override
 # (the given json object will be merged with the chef.json of the used tugger-stack, so you can add or override
