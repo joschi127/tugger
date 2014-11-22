@@ -5,7 +5,7 @@
 
 # the unique name of your project
 # (use '-' to separate words, no spaces, underscores and dots please)
-project_name="project-name"
+project_name="example-project"
 
 # the git repository url of the tugger-stack you want to use
 # (you can also use a repository in your local file system, but only committed changes will take effect)
@@ -21,15 +21,19 @@ tugger_stack_shared_image_name="tugger-stack-lamp"
 # the ports you want to expose
 tugger_ports="22 80 443"
 
+# write the following host names to /etc/hosts
+# (leave empty if you do not want to let tugger update your /etc/hosts file)
+update_etc_hosts="$project_name $project_name.local"
+
 # chef json override
 # (the given json object will be merged with the chef.json of the used tugger-stack, so you can add or override
 # options here)
 chef_json_override=$(cat <<EOF
     {
         "app": {
-            "name": "project-name",
-            "server_name": "project-name.local",
-            "server_aliases": [ "www.project-name.local" ]
+            "name": "$project_name",
+            "server_name": "$project_name",
+            "server_aliases": [ "$project_name.local" ]
         }
     }
 EOF
