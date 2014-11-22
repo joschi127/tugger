@@ -14,7 +14,8 @@ own repository in your `Tuggerfile`.
 Credits
 -------
 
-* Inspired by `Vagrant` and the `vagrant up` command
+* Inspired by `Vagrant` and the `vagrant up` command - just run `tugger start` from your project folder and you're
+ready to go
 * `Chef` and `Berkshelf` based provisioning, originally based on the `Vagrant-LAMP-Stack` by MiniCodeMonkey
 * And of course also thanks a lot to all the guys from `Docker`, `Chef`, `Berkshelf` and all the other great tools
 we're using for this
