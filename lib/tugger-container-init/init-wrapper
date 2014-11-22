@@ -1,11 +1,11 @@
 #!/bin/bash
 
 # run provisioning
-/bin/bash /tugger/lib/tugger-container-init/provision
+/bin/bash /tugger/lib/tugger-container-init/provision >> /tugger/init.log 2>&1
 
 # run init script from tugger-stack
-/bin/bash /tugger/tugger-stack/init
+/bin/bash /tugger/tugger-stack/init >> /tugger/init.log 2>&1
 
 # keep container running forever (or until it is being stopped)
-touch /tugger/init-completed.touch
+touch /tugger/init-completed.touch >> /tugger/init.log 2>&1
 sleep infinity
