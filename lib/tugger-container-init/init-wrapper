@@ -3,6 +3,13 @@
 # run provisioning
 /bin/bash /tugger/lib/tugger-container-init/provision >> /tugger/init.log 2>&1
 
+# cp /tugger/etc_hosts_extra
+if test -e /tugger/etc_hosts_extra
+then
+    echo >> /etc/hosts
+    cat /tugger/etc_hosts_extra >> /etc/hosts
+fi
+
 # run init script from tugger-stack
 /bin/bash /tugger/tugger-stack/init >> /tugger/init.log 2>&1
 
