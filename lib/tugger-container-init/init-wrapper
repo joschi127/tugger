@@ -1,14 +1,17 @@
 #!/bin/bash
 
+# create /tugger/etc_hosts_extra
+if ! test -e /tugger/etc_hosts_extra
+then
+    echo "127.0.0.1 localhost" > /tugger/etc_hosts_extra
+fi
+
 # run provisioning
 /bin/bash /tugger/lib/tugger-container-init/provision >> /tugger/init.log 2>&1
 
-# cp /tugger/etc_hosts_extra
-if test -e /tugger/etc_hosts_extra
-then
-    echo >> /etc/hosts
-    cat /tugger/etc_hosts_extra >> /etc/hosts
-fi
+# append content from /tugger/etc_hosts_extra to /etc/hosts
+echo >> /etc/hosts
+cat /tugger/etc_hosts_extra >> /etc/hosts
 
 # run init script from tugger-stack
 /bin/bash /tugger/tugger-stack/init >> /tugger/init.log 2>&1
