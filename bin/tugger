@@ -67,6 +67,8 @@ do
         ;;
     -b|--rebuild-image)
         rebuild_image=1
+        recreate_container=1
+        reprovision=1
         ;;
     -f|--file)
         tugger_file="$1"
