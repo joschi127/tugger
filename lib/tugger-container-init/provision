@@ -18,6 +18,10 @@ fi
 # run chef-solo / berkshelf provisioning
 if ! test -e /tugger/chef-completed.touch >/dev/null || [ "$reprovision" = "1" ]
 then
+    echo "Updating packages..."
+    apt-get -y update
+    apt-get -y upgrade
+    apt-get install python
     echo "Running chef-solo / berkshelf provisioning..."
     rm -rf /chef
     cp -r -Pa /tugger/tugger-stack /chef
