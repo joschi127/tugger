@@ -9,7 +9,7 @@ project_name="example-project"
 
 # the git repository url of the tugger-stack you want to use
 # (you can also use a repository in your local file system, but only committed changes will take effect)
-tugger_stack_git_url="git@github.com:joschi127/tugger-stack-lamp.git"
+tugger_stack_git_url="https://github.com/joschi127/tugger-stack-lamp.git"
 
 # the git branch or tag name of the tugger-stack you want to use
 tugger_stack_version="master"
