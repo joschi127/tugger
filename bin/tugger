@@ -136,7 +136,7 @@ then
     echo "                                  base image used by the tugger-stack"
     echo "  -b, --rebuild-image             Force to rebuild the docker base image, also when"
     echo "                                  image was already build from Dockerfile before"
-    echo "  -f, --file DOCKERUP_FILE        Pass path to 'Tuggerfile' to be used, default is"
+    echo "  -f, --file TUGGER_FILE          Pass path to 'Tuggerfile' to be used, default is"
     echo "                                  './Tuggerfile'"
     echo
     echo "Examples:"
