@@ -374,7 +374,7 @@ then
     # wait until init completed
     while ! test -e "$HOME/.tugger/projects/$project_name/init-completed.touch"
     do
-        sleep 2
+        sleep 5
         if [ "$(docker inspect --format '{{.State.Running}}' "$project_name" 2> /dev/null || true)" != "true" ]
         then
             echo "Container not running anymore, container init failed?"
