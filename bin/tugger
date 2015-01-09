@@ -236,12 +236,6 @@ else
     rm -f "$HOME/.tugger/projects/$project_name/recreate-berksfile-lock.touch"
 fi
 
-# force to run fresh provisioning when recreating a new container7
-if [ "$recreate_container" == 1 ]
-then
-    rm -f "$HOME/.tugger/projects/$project_name/chef-completed.touch"
-fi
-
 # get status information
 set_container_status_vars() {
     export existing_container_id="$(docker inspect --format '{{.Id}}' "$project_name" 2> /dev/null || true)"
@@ -262,6 +256,12 @@ set_container_status_vars() {
     fi
 }
 set_container_status_vars
+
+# force to run fresh provisioning when recreating a new container7
+if [ "$recreate_container" == 1 ] || [ "$existing_container_id" == "" ]
+then
+    rm -f "$HOME/.tugger/projects/$project_name/chef-completed.touch"
+fi
 
 # get mapped ports
 is_port_used() {
@@ -329,6 +329,7 @@ if [ "$tugger_action" == "remove" ]
 then
     echo "Permanently removing container '$project_name'..."
     docker rm "$project_name" > /dev/null
+    rm -rvf "$HOME/.tugger/projects/$project_name"
 fi
 # stop container?
 if [ "$tugger_action" == "stop" ] || [ "$tugger_action" == "restart" ]
