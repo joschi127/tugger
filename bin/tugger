@@ -367,7 +367,22 @@ then
     if [ "$existing_container_id" == "" ]
     then
         echo "Creating new container '$project_name'..."
-        docker run -d --name "$project_name" --hostname "$project_name" $mapped_ports_params -v "$HOME/.ssh/:/home/webserver/.ssh/" -v "$HOME/.gitconfig:/home/webserver/.gitconfig" -v "$HOME/.tugger/projects/$project_name:/tugger" -v "$tugger_install_dir/lib:/tugger/lib" -v "$project_dir:/var/www/webproject" -t "$tugger_stack_shared_image_name" /bin/bash /tugger/lib/tugger-container-init/init-wrapper > /dev/null
+        if ! test -e "$HOME/.ssh/"
+        then
+            echo "Folder '$HOME/.ssh/' not found. Please create it first."
+            exit 1
+        fi
+        if ! test -e "$HOME/.gitconfig"
+        then
+            echo "File '$HOME/.gitconfig' not found. Please create it first by running 'git config --global user.name \"John Doe\"' and 'git config --global user.email johndoe@example.com'."
+            exit 1
+        fi
+        if ! test -e "$HOME/.composer/"
+        then
+            echo "Folder '$HOME/.composer/' not found. Please create it first."
+            exit 1
+        fi
+        docker run -d --name "$project_name" --hostname "$project_name" $mapped_ports_params -v "$HOME/.ssh/:/home/webserver/.ssh/" -v "$HOME/.gitconfig:/home/webserver/.gitconfig" -v "$HOME/.composer/:/home/webserver/.composer/" -v "$HOME/.tugger/projects/$project_name:/tugger" -v "$tugger_install_dir/lib:/tugger/lib" -v "$project_dir:/var/www/webproject" -t "$tugger_stack_shared_image_name" /bin/bash /tugger/lib/tugger-container-init/init-wrapper > /dev/null
     else
         echo "Starting already existing container '$project_name'..."
         docker start "$project_name" > /dev/null
