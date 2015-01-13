@@ -33,6 +33,15 @@ resolve_symlink() {
     else
         path_real="$(realpath "$path")"
     fi
+    if [ "$path_real" == "" ]
+    then
+        echo "Could not resolve real path for '$path'."
+        if [ "$running_on_mac" != 1 ];
+        then
+            echo "Please make sure that 'realpath' is installed."
+        fi
+        exit 1
+    fi
     echo "$path_real"
 }
 tugger_install_dir="$(dirname "$(dirname "$(resolve_symlink "$0")")")"
@@ -106,6 +115,15 @@ folder_absolute_path() {
         path_real="$(cd "$path" && pwd)"
     else
         path_real="$(realpath "$path")"
+    fi
+    if [ "$path_real" == "" ]
+    then
+        echo "Could not resolve real path for '$path'."
+        if [ "$running_on_mac" != 1 ];
+        then
+            echo "Please make sure that 'realpath' is installed."
+        fi
+        exit 1
     fi
     echo "$path_real"
 }
