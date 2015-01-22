@@ -74,3 +74,48 @@ Start docker container by using `tugger`:
 For more information have a look at the command reference:
 
     tugger --help
+
+Show status of container
+------------------------
+
+To show the current status, IP address, mapped ports etc. of a container you can use:
+
+    tugger status
+
+SSH into running container
+--------------------------
+
+To access a shell in the container, use SSH like this:
+
+    # replace 'projectname' with the name you have defined in your Tuggerfile
+    ssh webserver@projectname
+    
+    # if you are on a mac using a boot2docker virtual machine, you have to pass the mapped port in addition
+    ssh webserver@projectname -p 7227
+
+Your project folder will be available under `/var/www/webproject` in the container.
+
+So to execute command line tools (like for example `composer`) in your container, cd into this folder:
+
+    cd /var/www/webproject
+    # then for example you can run: composer install -o
+
+Access webserver of running container
+-------------------------------------
+
+Just use your project's hostname to open your peoject in the browser browser: (from the same computer that is running the docker container)
+
+    http://projectname
+
+For accessing the webserver from other devices in your LAN (for example from a mobile device) you can open a SSH tunnel to map a port:
+
+    # replace 'projectname' with the name you have defined in your Tuggerfile
+    ssh -f -N -L *:8080:localhost:80 webserver@projectname
+    
+    # if you are on a mac using a boot2docker virtual machine, you have to pass the mapped port in addition
+    ssh -f -N -L *:8080:localhost:80 webserver@projectname -p 7227
+
+Then you should be able to access the webserver from other devices in your LAN by opening an URL like this:
+
+    # replace 192.168.0.123 with the LAN IP of the machine which is running the docker container
+    http://192.168.0.123:8080
