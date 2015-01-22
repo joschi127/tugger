@@ -103,9 +103,13 @@ So to execute command line tools (like for example `composer`) in your container
 Access webserver of running container
 -------------------------------------
 
-Just use your project's hostname to open your peoject in the browser browser: (from the same computer that is running the docker container)
+Just use your project's hostname to open your project in the browser: (from the same computer that is running the docker container)
 
+    # replace 'projectname' with the name you have defined in your Tuggerfile
     http://projectname
+    
+    # if you are on a mac using a boot2docker virtual machine, you have to pass the mapped port in addition
+    http://projectname:7285
 
 For accessing the webserver from other devices in your LAN (for example from a mobile device) you can open a SSH tunnel to map a port:
 
