@@ -315,7 +315,7 @@ gen_host_port() {
     p="$1"
     echo "72$[$p % 100]"
 }
-get_mapped_ports() {
+get_mapped_ports_list() {
     for container_port in $mapped_ports
     do
         ports_output="$(cat "$HOME/.tugger/ports" 2> /dev/null | awk "\$1 == \"$project_name\" && \$2 == \"$container_port\"")"
@@ -325,8 +325,17 @@ get_mapped_ports() {
             echo "$project_name $container_port $host_port" >> "$HOME/.tugger/ports"
         fi
     done
-    ports_output_full="$(cat "$HOME/.tugger/ports" 2> /dev/null | awk "\$1 == \"$project_name\"")"
-    echo "$ports_output_full"
+    ports_list="$(cat "$HOME/.tugger/ports" 2> /dev/null | awk "\$1 == \"$project_name\"")"
+    echo "$ports_list"
+}
+get_exposed_ports_list() {
+    ports_list=""
+    newline=$'\n'
+    for port in $exposed_ports
+    do
+        ports_list="${ports_list}${project_name} ${port} ${port}${newline}"
+    done
+    echo "$ports_list"
 }
 get_mapped_ports_params() {
     map="$1"
@@ -338,9 +347,12 @@ get_mapped_ports_summary() {
     params="$(echo "$map" | awk "{ print \"                                      $docker_host_ip:\"\$3\" --> \"\$2\" \" }")"
     echo "$params"
 }
-mapped_ports="$(get_mapped_ports)"
-mapped_ports_params="$(get_mapped_ports_params "$mapped_ports")"
-mapped_ports_summary="$(get_mapped_ports_summary "$mapped_ports")"
+mapped_ports_list="$(get_mapped_ports_list)"
+mapped_ports_params="$(get_mapped_ports_params "$mapped_ports_list")"
+mapped_ports_summary="$(get_mapped_ports_summary "$mapped_ports_list")"
+exposed_ports_list="$(get_exposed_ports_list)"
+exposed_ports_params="$(get_mapped_ports_params "$exposed_ports_list")"
+exposed_ports_summary="$(get_mapped_ports_summary "$exposed_ports_list")"
 
 # handle the requested tugger action
 if [ "$tugger_action" == "remove" ]
@@ -400,7 +412,7 @@ then
             echo "Folder '$HOME/.composer/' not found. Please create it first."
             exit 1
         fi
-        docker run -d --name "$project_name" --hostname "$project_name" $mapped_ports_params -v "$HOME/.ssh/:/home/webserver/.ssh/" -v "$HOME/.gitconfig:/home/webserver/.gitconfig" -v "$HOME/.composer/:/home/webserver/.composer/" -v "$HOME/.tugger/projects/$project_name:/tugger" -v "$tugger_install_dir/lib:/tugger/lib" -v "$project_dir:/var/www/webproject" -t "$tugger_stack_shared_image_name" /bin/bash /tugger/lib/tugger-container-init/init-wrapper > /dev/null
+        docker run -d --name "$project_name" --hostname "$project_name" $mapped_ports_params $exposed_ports_params -v "$HOME/.ssh/:/home/webserver/.ssh/" -v "$HOME/.gitconfig:/home/webserver/.gitconfig" -v "$HOME/.composer/:/home/webserver/.composer/" -v "$HOME/.tugger/projects/$project_name:/tugger" -v "$tugger_install_dir/lib:/tugger/lib" -v "$project_dir:/var/www/webproject" -t "$tugger_stack_shared_image_name" /bin/bash /tugger/lib/tugger-container-init/init-wrapper > /dev/null
     else
         echo "Starting already existing container '$project_name'..."
         docker start "$project_name" > /dev/null
@@ -498,6 +510,12 @@ then
         echo
         echo "Mapped ports:"
         echo "$mapped_ports_summary";
+        if [ "$exposed_ports" != "" ]
+        then
+            echo
+            echo "Exposed ports:"
+            echo "$exposed_ports_summary";
+        fi
     fi
     echo
 fi
