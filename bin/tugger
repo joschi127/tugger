@@ -316,36 +316,51 @@ gen_host_port() {
     echo "72$[$p % 100]"
 }
 get_mapped_ports_list() {
-    for container_port in $mapped_ports
-    do
-        ports_output="$(cat "$HOME/.tugger/ports" 2> /dev/null | awk "\$1 == \"$project_name\" && \$2 == \"$container_port\"")"
-        if [ "$ports_output" == "" ]
-        then
-            host_port="$(find_free_port $(gen_host_port $container_port))"
-            echo "$project_name $container_port $host_port" >> "$HOME/.tugger/ports"
-        fi
-    done
-    ports_list="$(cat "$HOME/.tugger/ports" 2> /dev/null | awk "\$1 == \"$project_name\"")"
+    ports_list=""
+    if [ "$mapped_ports" != "" ]
+    then
+        for container_port in $mapped_ports
+        do
+            ports_output="$(cat "$HOME/.tugger/ports" 2> /dev/null | awk "\$1 == \"$project_name\" && \$2 == \"$container_port\"")"
+            if [ "$ports_output" == "" ]
+            then
+                host_port="$(find_free_port $(gen_host_port $container_port))"
+                echo "$project_name $container_port $host_port" >> "$HOME/.tugger/ports"
+            fi
+        done
+        ports_list="$(cat "$HOME/.tugger/ports" 2> /dev/null | awk "\$1 == \"$project_name\"")"
+    fi
     echo "$ports_list"
 }
 get_exposed_ports_list() {
     ports_list=""
-    newline=$'\n'
-    for port in $exposed_ports
-    do
-        ports_list="${ports_list}${project_name} ${port} ${port}${newline}"
-    done
+    if [ "$exposed_ports" != "" ]
+    then
+        newline=$'\n'
+        for port in $exposed_ports
+        do
+            ports_list="${ports_list}${project_name} ${port} ${port}${newline}"
+        done
+    fi
     echo "$ports_list"
 }
 get_mapped_ports_params() {
     map="$1"
-    params="$(echo "$map" | awk "{ printf \"-p \"\$3\":\"\$2\" \" }")"
+    params=""
+    if [ "$map" != "" ]
+    then
+        params="$(echo "$map" | awk "{ printf \"-p \"\$3\":\"\$2\" \" }")"
+    fi
     echo "$params"
 }
 get_mapped_ports_summary() {
     map="$1"
-    params="$(echo "$map" | awk "{ print \"                                      $docker_host_ip:\"\$3\" --> \"\$2\" \" }")"
-    echo "$params"
+    summary=""
+    if [ "$map" != "" ]
+    then
+        summary="$(echo "$map" | awk "{ print \"                                      $docker_host_ip:\"\$3\" --> \"\$2\" \" }")"
+    fi
+    echo "$summary"
 }
 mapped_ports_list="$(get_mapped_ports_list)"
 mapped_ports_params="$(get_mapped_ports_params "$mapped_ports_list")"
