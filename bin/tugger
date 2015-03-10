@@ -262,7 +262,12 @@ set_container_status_vars() {
     if [ "$existing_container_ip_address" != "" ]
     then
         export existing_container_ip_address_display="$existing_container_ip_address"
-        export existing_container_etc_hosts_display="$(([ "$etc_hosts" != "" ] && echo "$etc_hosts") || echo "-")"
+        if [ "$etc_hosts" != "" ]
+        then
+            export existing_container_etc_hosts_display="$etc_hosts"
+        else
+            export existing_container_etc_hosts_display="-"
+        fi
     else
         export existing_container_ip_address_display="-"
         export existing_container_etc_hosts_display="-"
