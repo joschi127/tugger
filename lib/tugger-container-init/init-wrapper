@@ -6,6 +6,9 @@ then
     echo "127.0.0.1 localhost" > /tugger/etc_hosts_extra
 fi
 
+# fix permissions of /etc/resolv.conf
+sudo chmod a+r /etc/resolv.conf
+
 # run provisioning
 /bin/bash /tugger/lib/tugger-container-init/provision >> /tugger/init.log 2>&1
 
