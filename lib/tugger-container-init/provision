@@ -20,7 +20,7 @@ if ! test -e /tugger/chef-completed.touch >/dev/null || [ "$reprovision" = "1" ]
 then
     echo "Updating packages..."
     apt-get -y update
-    yes | apt-get -y upgrade
+    DEBIAN_FRONTEND=noninteractive apt-get -y upgrade
     apt-get -y install python
     echo "Running chef-solo / berkshelf provisioning..."
     rm -rf /chef
