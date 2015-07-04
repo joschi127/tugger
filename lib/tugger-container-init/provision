@@ -22,6 +22,10 @@ then
     apt-get -y update
     DEBIAN_FRONTEND=noninteractive apt-get -y upgrade
     apt-get -y install python
+    echo "Updating chef..."
+    curl -L https://www.chef.io/chef/install.sh | bash -s -- -v 12.4.0
+    echo "gem: --no-ri --no-rdoc" > ~/.gemrc
+    /opt/chef/embedded/bin/gem install berkshelf
     echo "Running chef-solo / berkshelf provisioning..."
     rm -rf /chef
     cp -r -Pa /tugger/tugger-stack /chef
