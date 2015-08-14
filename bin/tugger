@@ -374,6 +374,23 @@ exposed_ports_list="$(get_exposed_ports_list)"
 exposed_ports_params="$(get_mapped_ports_params "$exposed_ports_list")"
 exposed_ports_summary="$(get_mapped_ports_summary "$exposed_ports_list")"
 
+# get boot2docker fast_folders
+get_boot2docker_fast_folders_params() {
+    params=""
+    if [ "$running_on_mac" == 1 ]
+    then
+        for folder in $boot2docker_fast_folders
+        do
+            local_folder="/tmp/boot2docker_fast_folders/${folder}"
+            boot2docker ssh mkdir -p ${local_folder}
+            params="$params -v ${local_folder}:/var/www/webproject/${folder}"
+            params="$params -v ${project_dir}/${folder}:/var/www/webproject/${folder}.hostfs"
+        done
+    fi
+    echo "$params"
+}
+boot2docker_fast_folders_params="$(get_boot2docker_fast_folders_params)"
+
 # handle the requested tugger action
 if [ "$tugger_action" == "remove" ]
 then
@@ -432,7 +449,7 @@ then
             echo "Folder '$HOME/.composer/' not found. Please create it first."
             exit 1
         fi
-        docker run -d --name "$project_name" --hostname "$project_name" $mapped_ports_params $exposed_ports_params -v "$HOME/.ssh/:/home/webserver/.ssh/" -v "$HOME/.gitconfig:/home/webserver/.gitconfig" -v "$HOME/.composer/:/home/webserver/.composer/" -v "$HOME/.tugger/projects/$project_name:/tugger" -v "$tugger_install_dir/lib:/tugger/lib" -v "$project_dir:/var/www/webproject" -t "$tugger_stack_shared_image_name" /bin/bash /tugger/lib/tugger-container-init/init-wrapper > /dev/null
+        docker run -d --name "$project_name" --hostname "$project_name" $mapped_ports_params $exposed_ports_params -v "$HOME/.ssh/:/home/webserver/.ssh/" -v "$HOME/.gitconfig:/home/webserver/.gitconfig" -v "$HOME/.composer/:/home/webserver/.composer/" -v "$HOME/.tugger/projects/$project_name:/tugger" -v "$tugger_install_dir/lib:/tugger/lib" -v "$project_dir:/var/www/webproject" $boot2docker_fast_folders_params -t "$tugger_stack_shared_image_name" /bin/bash /tugger/lib/tugger-container-init/init-wrapper > /dev/null
     else
         echo "Starting already existing container '$project_name'..."
         docker start "$project_name" > /dev/null

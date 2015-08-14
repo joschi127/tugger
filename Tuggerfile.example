@@ -18,6 +18,11 @@ tugger_stack_version="master"
 # (an image can be shared for multiple projects when using the same name)
 tugger_stack_shared_image_name="tugger-stack-lamp"
 
+# list of sub folders of your project which should not be used from the host filesystem directly when using boot2docker
+# on macs, because the mounted host filesystem folders are very slow on macs with boot2docker (because boot2docker
+# is using VirtualBox shared folders which are quite slow)
+boot2docker_fast_folders="vendor app/cache app/logs app/var"
+
 # the ports you want to map (ports will be exposed under another free port, like 7288 --> 80)
 mapped_ports="22 80 443"
 
