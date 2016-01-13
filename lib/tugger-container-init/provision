@@ -23,7 +23,7 @@ then
     DEBIAN_FRONTEND=noninteractive apt-get -y upgrade
     apt-get -y install python apt-utils
     echo "Updating chef..."
-    curl -L https://www.chef.io/chef/install.sh | bash -s -- -v 12.4.0
+    curl -L https://www.chef.io/chef/install.sh | bash -s -- -v 12.6.0
     echo "gem: --no-ri --no-rdoc" > ~/.gemrc
     /opt/chef/embedded/bin/gem install berkshelf
     echo "Running chef-solo / berkshelf provisioning..."
