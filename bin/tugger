@@ -423,6 +423,7 @@ then
     fi
     rm -f "$HOME/.tugger/projects/$project_name/init-completed.touch"
     echo -n > "$HOME/.tugger/projects/$project_name/init.log"
+    pkill -f "tail -f $HOME/.tugger/projects/$project_name/init.log" || true
     tail -f "$HOME/.tugger/projects/$project_name/init.log" &
     log_tail_pid=$!
     if [ "$existing_container_id" != "" ] && [ "$recreate_container" == 1 ]
