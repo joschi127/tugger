@@ -11,9 +11,9 @@ then
 fi
 
 # on mac, check if boot2docker is running
-if [ "$running_on_mac" == 1 ] && [ "$(boot2docker status)" != "running" ]
+if [ "$running_on_mac" == 1 ] && [ "$(docker-machine status default)" != "Running" ]
 then
-    echo "Please start boot2docker first"
+    echo "Please run in Docker Quickstart Terminal"
     exit 1
 fi
 
@@ -275,7 +275,7 @@ set_container_status_vars() {
     export docker_host_ip="127.0.0.1"
     if [ "$running_on_mac" == 1 ]
     then
-        export docker_host_ip="$(boot2docker ip 2> /dev/null || true)"
+        export docker_host_ip="$(docker-machine ip default 2> /dev/null || true)"
     fi
 }
 set_container_status_vars
@@ -381,8 +381,8 @@ get_boot2docker_fast_folders_params() {
     then
         for folder in $boot2docker_fast_folders
         do
-            local_folder="/tmp/boot2docker_fast_folders/${folder}"
-            boot2docker ssh mkdir -p ${local_folder}
+            local_folder="/home/docker/boot2docker_fast_folders/${folder}"
+            docker-machine ssh default mkdir -p ${local_folder}
             params="$params -v ${local_folder}:/var/www/webproject/${folder}"
             params="$params -v ${project_dir}/${folder}:/var/www/webproject/${folder}.hostfs"
         done
@@ -511,7 +511,7 @@ then
         ip_escaped="$(echo "$ip" | sed 's/\./\\\./g')"
         host_escaped="$(echo "$host" | sed 's/\./\\\./g')"
         echo "Removing $ip $host from /etc/hosts... (please enter password for sudo operation when prompted)"
-        sudo sed -i "/$ip_escaped $host_escaped # added-by-tugger(project_name=$project_name)/d" /etc/hosts
+        sudo sed -i "" ""/$ip_escaped $host_escaped # added-by-tugger(project_name=$project_name)/d" /etc/hosts
     done
     # add missing hosts entries
     if [ "$tugger_action" == "start" ] || [ "$tugger_action" == "restart" ]
