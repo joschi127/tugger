@@ -381,7 +381,7 @@ get_boot2docker_fast_folders_params() {
     then
         for folder in $boot2docker_fast_folders
         do
-            local_folder="/home/docker/boot2docker_fast_folders/${project_name}/${folder}"
+            local_folder="/mnt/sda1/boot2docker_fast_folders/${project_name}/${folder}"
             docker-machine ssh default mkdir -p ${local_folder}
             params="$params -v ${local_folder}:/var/www/webproject/${folder}"
             params="$params -v ${project_dir}/${folder}:/var/www/webproject/${folder}.hostfs"
