@@ -9,6 +9,12 @@ fi
 # fix permissions of /etc/resolv.conf
 chmod a+r /etc/resolv.conf
 
+# set timezone
+if test -e /tugger/timezone
+then
+    cat /tugger/timezone > /etc/timezone && dpkg-reconfigure -f noninteractive tzdata
+fi
+
 # run provisioning
 /bin/bash /tugger/lib/tugger-container-init/provision >> /tugger/init.log 2>&1
 

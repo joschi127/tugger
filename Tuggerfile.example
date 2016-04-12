@@ -33,6 +33,9 @@ exposed_ports=""
 # (leave empty if you do not want to let tugger update your /etc/hosts file)
 etc_hosts="$project_name $project_name.local"
 
+# set timezone
+timezone="Europe/Berlin"
+
 # chef json override
 # (the given json object will be merged with the chef.json of the used tugger-stack, so you can add or override
 # options here)

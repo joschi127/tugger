@@ -211,6 +211,14 @@ fi
 # cp tugger file
 cp "$tugger_file" "$HOME/.tugger/projects/$project_name/Tuggerfile"
 
+# create timezone file
+if [ "$timezone" != "" ]
+then
+    echo "$timezone" > "$HOME/.tugger/projects/$project_name/timezone"
+else
+    echo "Europe/Berlin" > "$HOME/.tugger/projects/$project_name/timezone"
+fi
+
 # build the docker image
 existing_image_id="$(docker inspect --format '{{.Id}}' "$tugger_stack_shared_image_name" 2> /dev/null || true)"
 if [ "$rebuild_image" == 1 ] && [ "$existing_image_id" != "" ]
