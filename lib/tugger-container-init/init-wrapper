@@ -23,7 +23,7 @@ echo >> /etc/hosts
 cat /tugger/etc_hosts_extra >> /etc/hosts
 
 # append content from /tugger/etc_hosts_other_tugger_containers to /etc/hosts
-if ! test -e /tugger/etc_hosts_other_tugger_containers
+if test -e /tugger/etc_hosts_other_tugger_containers
 then
     echo >> /etc/hosts
     cat /tugger/etc_hosts_other_tugger_containers >> /etc/hosts
