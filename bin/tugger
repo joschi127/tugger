@@ -548,7 +548,7 @@ fi
 # update etc_hosts_other_tugger_containers (let the container know about the host names of other containers)
 if [ "$tugger_action" == "start" ] || [ "$tugger_action" == "restart" ]
 then
-    echo "$(cat "/etc/hosts" 2> /dev/null | grep "added-by-tugger(project_name=" | awk "\$3 == \"#\" && \$4 != \"added-by-tugger(project_name=$project_name)\" { print \$1\":\"\$2 }")" > $HOME/.tugger/projects/$project_name/etc_hosts_other_tugger_containers
+    echo "$(cat "/etc/hosts" 2> /dev/null | grep "added-by-tugger(project_name=" | awk "\$3 == \"#\" && \$4 != \"added-by-tugger(project_name=$project_name)\" { print \$1\" \"\$2 }")" > $HOME/.tugger/projects/$project_name/etc_hosts_other_tugger_containers
 fi
 # output status?
 if [ "$tugger_action" == "status" ] || [ "$tugger_action" == "start" ] || [ "$tugger_action" == "restart" ]
