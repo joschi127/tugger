@@ -55,7 +55,11 @@ Quick start - using tugger for your project
 
 Install tugger if not already installed:
 
+    # on linux: install tugger whereever you want
     git clone https://github.com/joschi127/tugger /some/target/path/tugger
+
+    # on mac: tugger has to be installed somewhere under /Users/
+    git clone https://github.com/joschi127/tugger /Users/your_username/some/target/path/tugger
 
 Make it available as a global command: (optional)
 

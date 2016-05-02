@@ -10,7 +10,7 @@ then
     running_on_mac=1
 fi
 
-# on mac, check if boot2docker is running
+# on mac, check if docker-machine is running
 if [ "$running_on_mac" == 1 ] && [ "$(docker-machine status default)" != "Running" ]
 then
     echo "Please run in Docker Quickstart Terminal"
@@ -45,6 +45,13 @@ resolve_symlink() {
     echo "$path_real"
 }
 tugger_install_dir="$(dirname "$(dirname "$(resolve_symlink "$0")")")"
+
+# on mac, check if tugger_install_dir is under /Users
+if [ "$running_on_mac" == 1 ] && [ "$(echo "$tugger_install_dir" | cut -d "/" -f 2)" != "Users" ]
+then
+    echo "Tugger has to be installed in a subdirectory of /Users/, e.g. /Users/your_username/some/target/path/tugger"
+    exit 1
+fi
 
 # parse command line args
 show_help=0
