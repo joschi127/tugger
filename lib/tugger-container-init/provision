@@ -23,7 +23,8 @@ then
     DEBIAN_FRONTEND=noninteractive apt-get -y upgrade
     apt-get -y install python apt-utils
     echo "Updating chef..."
-    curl -L https://www.chef.io/chef/install.sh | bash -s -- -v 12.6.0
+    # chef version is given in tugger 'lib/tugger-container-init/provision' and in tugger-stack 'Dockerfile'
+    curl -L https://www.chef.io/chef/install.sh | bash -s -- -v 12.14.60
     echo "gem: --no-ri --no-rdoc" > ~/.gemrc
     /opt/chef/embedded/bin/gem install berkshelf
     echo "Running chef-solo / berkshelf provisioning..."
