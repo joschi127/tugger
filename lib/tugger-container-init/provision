@@ -42,7 +42,7 @@ then
         /usr/bin/python2 /tugger/lib/tugger-container-init/json-merge.py chef_orig.json chef_override.json > chef.json
     fi
     /opt/chef/embedded/bin/berks vendor /chef/cookbooks
-    chef-solo -c "/chef/chef.rb" -j "/chef/chef.json"
+    chef-solo --legacy-mode -c "/chef/chef.rb" -j "/chef/chef.json"
     echo "Chef-solo / berkshelf provisioning completed."
     touch /tugger/chef-completed.touch
 fi
