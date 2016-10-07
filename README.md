@@ -127,3 +127,18 @@ Then you should be able to access the webserver from other devices in your LAN b
 
     # replace 192.168.0.123 with the LAN IP of the machine which is running the docker container
     http://192.168.0.123:8080
+
+Trouble shooting for failures during provisioning:
+--------------------------------------------------
+
+    # check cocker process list
+    docker ps
+    
+    # run bash in container directly via docker
+    docker exec -it container-name bash
+    
+    # run provisioning within container
+    docker exec -it container-name bash
+    cd /chef
+    /opt/chef/embedded/bin/berks vendor /chef/cookbooks
+    chef-solo --legacy-mode -c "/chef/chef.rb" -j "/chef/chef.json"
