@@ -294,7 +294,7 @@ set_container_status_vars() {
         # when `docker-machine ip` is broken with "Something went wrong running an SSH command!" errors, fall back to `docker-machine inspect`
         if [ "$docker_host_ip" == "" ]
         then
-            echo "WARNING: `docker-machine ip default` failed, falling back to `docker machine inspect default --format '{{.Driver.IPAddress}}'` to get IP address of docker host machine."
+            echo "WARNING: 'docker-machine ip default' failed, falling back to 'docker machine inspect default' to get IP address of docker host machine."
             echo "         Please fix this by recreating your docker-machine or upgrading docker."
             export docker_host_ip="$(docker-machine inspect default --format '{{.Driver.IPAddress}}' 2> /dev/null || true)"
         fi
