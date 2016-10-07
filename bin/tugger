@@ -574,6 +574,7 @@ then
     then
         echo "Container not created yet, no container found with that name"
     else
+        echo "Docker host IP address:               $docker_host_ip"
         echo "Container ID:                         $existing_container_id"
         echo "Container currently running:          $existing_container_running"
         echo "Current container IP address:         $existing_container_ip_address_display"
