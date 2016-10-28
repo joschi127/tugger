@@ -5,17 +5,26 @@ set -e
 
 # check if running on mac
 running_on_mac=0
+docker_for_mac=0
 if [ "$(uname)" == "Darwin" ]
 then
     running_on_mac=1
 fi
 
-# on mac, check if docker-machine is running
-if [ "$running_on_mac" == 1 ] && [ "$(docker-machine status default)" != "Running" ]
+#on mac with newer implementation of docker for mac check if installed
+if [[ $(docker version --format "{{.Server.KernelVersion}}") == *-moby ]]
+then
+    docker_for_mac=1
+fi
+
+#on mac, check if docker-machine is running on old implementations of boot2docker or docker for mac beta
+if [ "$running_on_mac" == 1 ] && [ "$(docker-machine status default)" != "Running" ] && [ "$docker_for_mac" == 0 ]
 then
     echo "Please run in Docker Quickstart Terminal"
     exit 1
 fi
+
+
 
 # check if running as root
 if [ "$(whoami)" == "root" ]
@@ -288,9 +297,11 @@ set_container_status_vars() {
         export existing_container_etc_hosts_display="-"
     fi
     export docker_host_ip="127.0.0.1"
-    if [ "$running_on_mac" == 1 ]
+    
+    #only export different host_ip if running on old boot2docker
+    if [ "$running_on_mac" == 1 ] && [ "$docker_for_mac" == 0 ]
     then
-        export docker_host_ip="$(docker-machine ip default 2> /dev/null || true)"
+       export docker_host_ip="$(docker-machine ip default 2> /dev/null || true)"
         # when `docker-machine ip` is broken with "Something went wrong running an SSH command!" errors, fall back to `docker-machine inspect`
         if [ "$docker_host_ip" == "" ]
         then
@@ -399,7 +410,7 @@ exposed_ports_summary="$(get_mapped_ports_summary "$exposed_ports_list")"
 # get boot2docker fast_folders
 get_boot2docker_fast_folders_params() {
     params=""
-    if [ "$running_on_mac" == 1 ]
+    if [ "$running_on_mac" == 1 ] && [ "$docker_for_mac" == 0 ]
     then
         for folder in $boot2docker_fast_folders
         do
