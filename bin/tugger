@@ -18,10 +18,13 @@ then
 fi
 
 #on mac, check if docker-machine is running on old implementations of boot2docker or docker for mac beta
-if [ "$running_on_mac" == 1 ] && [ "$(docker-machine status default)" != "Running" ] && [ "$docker_for_mac" == 0 ]
+if [ "$running_on_mac" == 1 ] && [ "$docker_for_mac" == 0 ]
 then
-    echo "Please run in Docker Quickstart Terminal"
-    exit 1
+	if [ "$(docker-machine status default)" != "Running" ] 
+	then
+    	echo "Please run in Docker Quickstart Terminal"
+    	exit 1
+    fi
 fi
 
 
