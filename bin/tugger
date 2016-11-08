@@ -12,7 +12,7 @@ then
 fi
 
 #on mac with newer implementation of docker for mac check if installed
-if [[ $(docker version --format "{{.Server.KernelVersion}}") == *-moby ]]
+if [ "$running_on_mac" == 1 ] && [[ $(docker version --format "{{.Server.KernelVersion}}") == *-moby ]]
 then
     docker_for_mac=1
 fi
