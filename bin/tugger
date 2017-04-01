@@ -163,6 +163,7 @@ then
     echo "  restart                         Restart the container"
     echo "  remove                          Permanently remove the container"
     echo "  status                          Show status information for the container"
+    echo "  ssh                             Open SSH connection to container and change into work directory"
     echo
     echo "And where OPTIONS can be:"
     echo "  -h, --help                      Show this help"
