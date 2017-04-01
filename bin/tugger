@@ -629,8 +629,8 @@ then
     fi
     if [ "$running_on_mac" == 1 ]
     then
-        ssh -o StrictHostKeyChecking=no webserver@$docker_host_ip -p $ssh_mapped_port -t "cd /var/www/webproject; bash --login"
+        ssh -o StrictHostKeyChecking=no webserver@$docker_host_ip -p $ssh_mapped_port -t "cd /var/www/webproject; echo; echo \"Welcome to your '$project_name' tugger container!\"; echo; bash --login"
     else
-        ssh -o StrictHostKeyChecking=no webserver@$existing_container_ip_address -t "cd /var/www/webproject; bash --login"
+        ssh -o StrictHostKeyChecking=no webserver@$existing_container_ip_address -t "cd /var/www/webproject; echo; echo \"Welcome to your '$project_name' tugger container!\"; echo; bash --login"
     fi
 fi
