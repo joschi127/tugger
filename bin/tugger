@@ -27,8 +27,6 @@ then
     fi
 fi
 
-
-
 # check if running as root
 if [ "$(whoami)" == "root" ]
 then
@@ -116,6 +114,9 @@ do
         ;;
     status)
         tugger_action="status"
+        ;;
+    ssh)
+        tugger_action="ssh"
         ;;
     *)
         # unknown option
@@ -403,12 +404,23 @@ get_mapped_ports_summary() {
     fi
     echo "$summary"
 }
+get_mapped_port_by_target_port() {
+    map="$1"
+    target_port="$2"
+    mapped_port=""
+    if [ "$map" != "" ] && [ "target_port" != "" ]
+    then
+        mapped_port="$(echo "$map" | grep "${project_name} ${target_port}" | awk "{ print \$3 }")"
+    fi
+    echo "$mapped_port"
+}
 mapped_ports_list="$(get_mapped_ports_list)"
 mapped_ports_params="$(get_mapped_ports_params "$mapped_ports_list")"
 mapped_ports_summary="$(get_mapped_ports_summary "$mapped_ports_list")"
 exposed_ports_list="$(get_exposed_ports_list)"
 exposed_ports_params="$(get_mapped_ports_params "$exposed_ports_list")"
 exposed_ports_summary="$(get_mapped_ports_summary "$exposed_ports_list")"
+ssh_mapped_port="$(get_mapped_port_by_target_port "$mapped_ports_list" "22")"
 
 # get boot2docker fast_folders
 get_boot2docker_fast_folders_params() {
@@ -604,4 +616,21 @@ then
         fi
     fi
     echo
+fi
+
+# ssh into container
+if [ "$tugger_action" == "ssh" ]
+then
+    echo "Opening ssh connection to '$project_name'..."
+    if [ "$existing_container_running" != "true" ]
+    then
+        echo "Container is not running"
+        exit 1
+    fi
+    if [ "$running_on_mac" == 1 ]
+    then
+        ssh -o StrictHostKeyChecking=no webserver@$docker_host_ip -p $ssh_mapped_port -t "cd /var/www/webproject; bash --login"
+    else
+        ssh -o StrictHostKeyChecking=no webserver@$existing_container_ip_address -t "cd /var/www/webproject; bash --login"
+    fi
 fi
