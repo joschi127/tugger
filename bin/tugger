@@ -186,6 +186,7 @@ then
     echo "  tugger restart --reprovision  Restart and reprovision the container"
     echo "  tugger remove                 Permanently remove the container"
     echo "  tugger status                 Show status information for the container"
+    echo "  tugger ssh                    Open SSH connection to container and change into work directory"
     exit 0
 fi
 
