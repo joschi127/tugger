@@ -6,7 +6,7 @@ Simple tool for running `Docker` based development environments with `Chef` and 
 Reads config from the `Tuggerfile` in your project's root folder and uses use a `tugger-stack` from another git
 repository which contains the provisioning config for your development container.
 
-You can find a Debian based LAMP `tugger-stack` here: https://github.com/joschi127/tugger-stack-lamp
+You can find a Debian based LAMP `tugger-stack` here: https://github.com/joschi127/tugger-stack-lamp-php7
 
 To create your own provisioning config, just fork the repository of the `tugger-stack` and use the Git URL of your
 own repository in your `Tuggerfile`.
@@ -35,7 +35,7 @@ space and to allow creating new containers faster
 * Automatically shares your `~/.git` and `~/.ssh` settings folders with the container so you can use git and your
 existing SSH keys from within the container
 * Avoids nasty permission issues (e.g. by automatically running Apache and PHP with your own user's user id in
-the `tugger-stack-lamp`)
+`tugger-stack-lamp` and `tugger-stack-lamp-php7`)
 * Automatically updates your `/etc/hosts` file so you can access your containers by using a fixed host name
 * Automatically allocates mapped ports (required on Mac for direct access e.g. to the webserver running in the
 container)
