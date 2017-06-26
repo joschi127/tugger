@@ -25,7 +25,12 @@ then
     which systemctl && apt-get -y remove systemd
     echo "Updating chef..."
     # chef version is given in tugger 'lib/tugger-container-init/provision' and in tugger-stack 'Dockerfile'
-    curl -L https://www.chef.io/chef/install.sh | bash -s -- -v 13.1.31-1
+    CHEF_VERSION="13.1.31-1"
+    if test -e /tugger/tugger-stack/chef-version-for-tugger.txt
+    then
+        CHEF_VERSION="$(cat /tugger/tugger-stack/chef-version-for-tugger.txt)"
+    fi
+    curl -L https://www.chef.io/chef/install.sh | bash -s -- -v $CHEF_VERSION
     echo "gem: --no-ri --no-rdoc" > ~/.gemrc
     /opt/chef/embedded/bin/gem install berkshelf
     echo "Running chef-solo / berkshelf provisioning..."
