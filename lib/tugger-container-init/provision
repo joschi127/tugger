@@ -22,6 +22,7 @@ then
     apt-get -y update
     DEBIAN_FRONTEND=noninteractive apt-get -y upgrade
     apt-get -y install python apt-utils
+    which systemctl && apt-get -y remove systemd
     echo "Updating chef..."
     # chef version is given in tugger 'lib/tugger-container-init/provision' and in tugger-stack 'Dockerfile'
     curl -L https://www.chef.io/chef/install.sh | bash -s -- -v 13.1.31-1
