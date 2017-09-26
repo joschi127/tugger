@@ -27,8 +27,9 @@ then
     echo "Removing systemd, switching to upstart-sysv..."
     if which systemctl > /dev/null
     then
+        apt-get -y install udev                     # require to avoid errors later when plymouth will be pulled in
         apt-get -y remove systemd
-        apt-get -y install upstart-sysv udev plymouth
+        apt-get -y install upstart-sysv plymouth
     fi
     apt-get -y autoremove
     # update chef
