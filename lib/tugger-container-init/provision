@@ -24,9 +24,12 @@ then
     DEBIAN_FRONTEND=noninteractive apt-get -y upgrade
     apt-get -y install python apt-utils
     # uninstall systemd and plymouth if installed, it does not work well within docker
-    echo "Removing systemd and plymouth..."
-    which systemctl && apt-get -y remove systemd
-    which plymouth && apt-get -y remove plymouth
+    echo "Removing systemd, switching to upstart-sysv..."
+    if which systemctl > /dev/null
+    then
+        apt-get -y remove systemd
+        apt-get -y install upstart-sysv udev plymouth
+    fi
     apt-get -y autoremove
     # update chef
     echo "Updating chef..."
